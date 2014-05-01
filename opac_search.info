@@ -1,0 +1,5 @@
+name = OPAC Search Block
+description = Provides a simple, confiruable search form block for libraries' online catalogs
+core = 7.x
+package = LVDL
+dependencies[] = block

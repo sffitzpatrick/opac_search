@@ -1,0 +1,146 @@
+<?php
+
+function opac_search_block_info() {
+    
+  $blocks['opac_header_search'] = array(
+    'info' => t('opac search'), 
+  );
+  
+  return $blocks;
+}
+
+function opac_search_block_view($delta = '') {
+  $search_form = drupal_get_form('opac_search_catalog_form');
+  $search_form_render = drupal_render($search_form);
+  $block = array();
+  switch ($delta) {
+    case 'opac_header_search':
+      $block['subject'] = t('opac header search');
+      $block['content'] = array(
+        '#title' => t('opac header search'),
+        '#markup' => $search_form_render,
+      );
+      break;
+      case 'opac_homepage_search':
+      $block['subject'] = t('opac homepage search');
+      $block['content'] = array(
+        '#title' => t('opac homepage search'),
+        '#markup' => $search_form_render,
+      );
+      break;
+  }
+  return $block;
+  
+}
+
+function opac_search_catalog_form() {
+    $form = '';
+    
+    $full_url = variable_get('opac_search_url', 'http://lakevilla.bibliocommons.com/search?t=smart&search_category=keyword&search_scope=LAKE_VILLA&q=[key]&commit=Search');
+    
+    $url_parts = explode('?',$full_url);
+    $search = $url_parts['1'];
+    $action_url = $url_parts['0'];
+    
+    $search = explode('&', $search);
+    
+    //dpm(drupal_get_query_parameters($search));
+    $search = drupal_get_query_parameters($search);
+    
+    foreach($search as $key => $term) {
+	    $newterm = explode('=', $term);
+	    //dpm($newterm);
+	    $newkey = $newterm[0];
+	    $newterm = $newterm[1];
+	    $search[$newkey] = $newterm;
+	    unset($search[$key]);
+	    
+    }
+    
+    $form = array(
+      '#attributes' => array(
+          'class' => 'nav-bar-search',
+      ),
+      '#method' => 'get',
+      '#action' => url( $action_url, array('external' => true)),
+      '#attributes' => array('target' => '_blank'),
+      
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => variable_get('opac_search_button', 'Search'),
+        '#name' => 'SUBMIT',
+        '#weight' => 4,
+      ),  
+
+    );
+    
+    foreach($search as $key => $param) {
+	    if($param == '[key]') {
+		    $form['search_input'] = array(
+	          '#type' => 'textfield',
+	          '#attributes' => array('placeholder' => variable_get('opac_search_placeholder', 'Find books & more...')),
+	          '#name' => $key,
+	          '#weight' => -999999,
+	      );
+		    
+	    } else {
+		    
+		    $form['hidden_' . $key] = array(
+		    	'#type' => 'hidden',
+		    	'#name' => $key,
+				'#value' => $param,
+		    );
+	    }
+	    
+    }
+       
+    return $form;
+    
+}
+
+ 
+function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $form_id) {
+  	$module = $form['module']['#value'];
+	if($form['module']['#value'] == 'opac_search') {
+		$form['settings'] += array(
+			'placeholder_text' => array(
+	            '#type' => 'textfield', 
+	            '#title' => t('Placeholder text'), 
+	            '#default_value' => variable_get('opac_search_placeholder'), 
+	            '#size' => 60, 
+	            '#maxlength' => 128,
+	            '#weight' => -18,
+	          ),
+	        'button_text' => array(
+	        	'#type' => 'textfield', 
+	            '#title' => t('Button text'), 
+	            '#default_value' => variable_get('opac_search_button', 'Search'), 
+	            '#size' => 60, 
+	            '#maxlength' => 128,
+	            '#weight' => -17,
+	        ),
+	        'search_url' => array(
+	        	'#type' => 'textfield', 
+	            '#title' => t('Search URL'), 
+	            '#default_value' => variable_get('opac_search_url', 'http://lakevilla.bibliocommons.com/search?t=smart&search_category=keyword&search_scope=LAKE_VILLA&q=[key]&commit=Search'), 
+	            '#description' => 'Enter the URL for the search, using [key] to replace the search term.',
+	            '#size' => 120, 
+	            '#maxlength' => 500,
+	            '#weight' => -18,
+	        ),
+	        
+	        
+	     );
+	        
+	        $form['#submit'][] = '_opac_header_search_submit_block_form';
+     }
+	
+}
+
+function _opac_header_search_submit_block_form($form, &$form_state) {
+    variable_set('opac_search_placeholder', $form_state['values']['placeholder_text']);  
+    variable_set('opac_search_url', $form_state['values']['search_url']);  
+    variable_set('opac_search_button', $form_state['values']['button_text']);        
+
+    
+}
