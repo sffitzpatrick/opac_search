@@ -2,7 +2,7 @@
 
 function opac_search_block_info() {
     
-  $blocks['opac_header_search'] = array(
+  $blocks['opac_search'] = array(
     'info' => t('opac search'), 
   );
   
@@ -14,17 +14,10 @@ function opac_search_block_view($delta = '') {
   $search_form_render = drupal_render($search_form);
   $block = array();
   switch ($delta) {
-    case 'opac_header_search':
+    case 'opac_search':
       $block['subject'] = t('opac header search');
       $block['content'] = array(
         '#title' => t('opac header search'),
-        '#markup' => $search_form_render,
-      );
-      break;
-      case 'opac_homepage_search':
-      $block['subject'] = t('opac homepage search');
-      $block['content'] = array(
-        '#title' => t('opac homepage search'),
         '#markup' => $search_form_render,
       );
       break;
@@ -36,25 +29,25 @@ function opac_search_block_view($delta = '') {
 function opac_search_catalog_form() {
     $form = '';
     
-    $full_url = variable_get('opac_search_url', 'http://lakevilla.bibliocommons.com/search?t=smart&search_category=keyword&search_scope=LAKE_VILLA&q=[key]&commit=Search');
+    $full_url = variable_get('opac_search_url', NULL);
     
+    //split the string into URL and query params
     $url_parts = explode('?',$full_url);
     $search = $url_parts['1'];
     $action_url = $url_parts['0'];
     
+    //now get the query params into an array
     $search = explode('&', $search);
-    
-    //dpm(drupal_get_query_parameters($search));
+
+	// This should eventually allow us to manage the array better.   
     $search = drupal_get_query_parameters($search);
     
     foreach($search as $key => $term) {
 	    $newterm = explode('=', $term);
-	    //dpm($newterm);
 	    $newkey = $newterm[0];
 	    $newterm = $newterm[1];
 	    $search[$newkey] = $newterm;
 	    unset($search[$key]);
-	    
     }
     
     $form = array(
