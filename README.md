@@ -10,4 +10,6 @@ After you install and enable the module, go to the block's config page and confi
 * Placeholder text.
 * Button text.
 
-That's it! It's pretty simple. Please email sean@proofstudio.net with any questions.
+That's it! It's designed to be very simple, and if you need more robust functionality, the Custom Search module is a great option!
+
+Please email sean@proofstudio.net with any questions.
