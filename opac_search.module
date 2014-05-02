@@ -85,7 +85,7 @@ function opac_search_catalog_form() {
           '#name' => $key,
           '#weight' => -999999,
         );
-      } 
+      }
       else {
         $form['hidden_' . $key] = array(
           '#type' => 'hidden',
@@ -97,7 +97,7 @@ function opac_search_catalog_form() {
 
     return $form;
 
-  } 
+  }
   else {
     drupal_set_message('Either you haven\'t configured the search URL or the configuration is
     incorrect', 'warning');
