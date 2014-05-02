@@ -11,8 +11,7 @@ function opac_search_block_info() {
     
   $blocks['opac_search'] = array(
     'info' => t('opac search'), 
-  );
-  
+  ); 
   return $blocks;
 }
 
@@ -33,7 +32,6 @@ function opac_search_block_view($delta = '') {
       break;
   }
   return $block;
-  
 }
 
 /**
@@ -65,50 +63,42 @@ function opac_search_catalog_form() {
 		    unset($search[$key]);
 	    }
 
-    
-        
 	    $form = array(
 	      '#method' => 'get',
 	      '#action' => url( $action_url, array('external' => true)),
-	      '#attributes' => array('target' => '_blank'),
-	      
+	      '#attributes' => array('target' => '_blank'),  
 	      'submit' => array(
 	        '#type' => 'submit',
 	        '#value' => variable_get('opac_search_button'),
 	        '#name' => 'SUBMIT',
 	        '#weight' => 4,
 	      ),  
-	
 	    );
     
 	    foreach($search as $key => $param) {
 		    if($param == '[key]') {
 			    $form['search_input'] = array(
 		          '#type' => 'textfield',
-		          '#attributes' => array('placeholder' => variable_get('opac_search_placeholder', 'Find books & more...')),
+		          '#attributes' => array('placeholder' => variable_get('opac_search_placeholder', 'Find books 
+		           & more...')),
 		          '#name' => $key,
 		          '#weight' => -999999,
 		      );
-			    
-		    } else {
-			    
+		    } else {   
 			    $form['hidden_' . $key] = array(
 			    	'#type' => 'hidden',
 			    	'#name' => $key,
 					'#value' => $param,
 			    );
 		    }
-		    
 	    }
 	    
 	    return $form;
-    
+
     } else {
-	    
-	    drupal_set_message('Either you haven\'t configured the search URL or the configuration is incorrect' ,'warning');
-	    
+	    drupal_set_message('Either you haven\'t configured the search URL or the configuration is
+	     incorrect' ,'warning');
     }
-    
 }
 
 /**
@@ -142,14 +132,10 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
 	            '#size' => 120, 
 	            '#maxlength' => 500,
 	            '#weight' => -18,
-	        ),
-	        
-	        
+	        ),  
 	     );
-	        
 	        $form['#submit'][] = '_opac_header_search_submit_block_form';
      }
-	
 }
 
 /**
