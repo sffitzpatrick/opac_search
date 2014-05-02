@@ -28,7 +28,7 @@ function opac_search_block_view($delta = '') {
         '#title' => t('opac search'),
         '#markup' => $search_form_render,
       );
-  break;
+      break;
   }
   return $block;
 }
@@ -38,20 +38,20 @@ function opac_search_block_view($delta = '') {
  */
 function opac_search_catalog_form() {
   $form = '';
-  
+
   $full_url = variable_get('opac_search_url', NULL);
 
   // First make sure there is a setting here.
   if (filter_var($full_url, FILTER_VALIDATE_URL)) {
     // Split the string into URL and query params.
-    $url_parts = explode('?',$full_url);
+    $url_parts = explode('?', $full_url);
     $search = $url_parts['1'];
     $action_url = $url_parts['0'];
 
     // Now get the query params into an array.
     $search = explode('&', $search);
 
-    // This should eventually allow us to manage the array better.   
+    // This should eventually allow us to manage the array better.
     $search = drupal_get_query_parameters($search);
 
     foreach ($search as $key => $term) {
@@ -62,10 +62,10 @@ function opac_search_catalog_form() {
       unset($search[$key]);
     }
 
-    // First, set up the form (then we add fields later)
+    // First, set up the form (then we add fields later).
     $form = array(
       '#method' => 'GET',
-      '#action' => url( $action_url, array('external' => TRUE)),
+      '#action' => url($action_url, array('external' => TRUE)),
       '#attributes' => array('target' => '_blank'),
       'submit' => array(
         '#type' => 'submit',
@@ -85,7 +85,8 @@ function opac_search_catalog_form() {
           '#name' => $key,
           '#weight' => -999999,
         );
-      } else {
+      } 
+      else {
         $form['hidden_' . $key] = array(
           '#type' => 'hidden',
           '#name' => $key,
@@ -96,9 +97,10 @@ function opac_search_catalog_form() {
 
     return $form;
 
-  } else {
+  } 
+  else {
     drupal_set_message('Either you haven\'t configured the search URL or the configuration is
-    incorrect' ,'warning');
+    incorrect', 'warning');
   }
 }
 
