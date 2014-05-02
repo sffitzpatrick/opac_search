@@ -105,7 +105,6 @@ function opac_search_catalog_form() {
  * Implements hook_form_FORMID_alter().
  */
 function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $form_id) {
-	$module = $form['module']['#value'];
 	if($form['module']['#value'] == 'opac_search') {
 		$form['settings'] += array(
 			'placeholder_text' => array(
@@ -128,7 +127,7 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
 	        	'#type' => 'textfield', 
 	            '#title' => t('Search URL'), 
 	            '#default_value' => variable_get('opac_search_url'), 
-	            '#description' => 'Enter the URL for the search, using [key] to replace the search term.',
+	            '#description' => t('Enter the URL for the search, using [key] to replace the search term.'),
 	            '#size' => 120, 
 	            '#maxlength' => 500,
 	            '#weight' => -18,
