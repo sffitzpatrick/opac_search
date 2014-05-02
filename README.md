@@ -1,4 +1,4 @@
-# OPAC Search Block
+# OPAC Search Block for Drupal
 
 This is a simple module that provides a configurable search block that should pretty much work for any library catalog search that uses the GET method (i.e., if you can see the search query parameters in the URL, you should be good). 
 
