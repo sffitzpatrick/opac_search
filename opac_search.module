@@ -1,5 +1,12 @@
 <?php
+/**
+ * @file
+ * Sets up a simple OPAC search block.
+ */
 
+/**
+ * Implements hook_block_info().
+ */
 function opac_search_block_info() {
     
   $blocks['opac_search'] = array(
@@ -9,15 +16,18 @@ function opac_search_block_info() {
   return $blocks;
 }
 
+/**
+ * Implements hook_block_view().
+ */
 function opac_search_block_view($delta = '') {
   $search_form = drupal_get_form('opac_search_catalog_form');
   $search_form_render = drupal_render($search_form);
   $block = array();
   switch ($delta) {
     case 'opac_search':
-      $block['subject'] = t('opac header search');
+      $block['subject'] = t('opac search');
       $block['content'] = array(
-        '#title' => t('opac header search'),
+        '#title' => t('opac search'),
         '#markup' => $search_form_render,
       );
       break;
@@ -26,72 +36,84 @@ function opac_search_block_view($delta = '') {
   
 }
 
+/**
+ * The search form
+ */
 function opac_search_catalog_form() {
     $form = '';
     
     $full_url = variable_get('opac_search_url', NULL);
     
-    //split the string into URL and query params
-    $url_parts = explode('?',$full_url);
-    $search = $url_parts['1'];
-    $action_url = $url_parts['0'];
-    
-    //now get the query params into an array
-    $search = explode('&', $search);
+    //first make sure there is a setting here. 
+    if(filter_var($full_url, FILTER_VALIDATE_URL)) {
+	    //split the string into URL and query params
+	    $url_parts = explode('?',$full_url);
+	    $search = $url_parts['1'];
+	    $action_url = $url_parts['0'];
+	    
+	    //now get the query params into an array
+	    $search = explode('&', $search);
+	
+		// This should eventually allow us to manage the array better.   
+	    $search = drupal_get_query_parameters($search);
+	    
+	    foreach($search as $key => $term) {
+		    $newterm = explode('=', $term);
+		    $newkey = $newterm[0];
+		    $newterm = $newterm[1];
+		    $search[$newkey] = $newterm;
+		    unset($search[$key]);
+	    }
 
-	// This should eventually allow us to manage the array better.   
-    $search = drupal_get_query_parameters($search);
     
-    foreach($search as $key => $term) {
-	    $newterm = explode('=', $term);
-	    $newkey = $newterm[0];
-	    $newterm = $newterm[1];
-	    $search[$newkey] = $newterm;
-	    unset($search[$key]);
-    }
+        
+	    $form = array(
+	      '#method' => 'get',
+	      '#action' => url( $action_url, array('external' => true)),
+	      '#attributes' => array('target' => '_blank'),
+	      
+	      'submit' => array(
+	        '#type' => 'submit',
+	        '#value' => variable_get('opac_search_button'),
+	        '#name' => 'SUBMIT',
+	        '#weight' => 4,
+	      ),  
+	
+	    );
     
-    $form = array(
-      '#attributes' => array(
-          'class' => 'nav-bar-search',
-      ),
-      '#method' => 'get',
-      '#action' => url( $action_url, array('external' => true)),
-      '#attributes' => array('target' => '_blank'),
-      
-      'submit' => array(
-        '#type' => 'submit',
-        '#value' => variable_get('opac_search_button', 'Search'),
-        '#name' => 'SUBMIT',
-        '#weight' => 4,
-      ),  
-
-    );
-    
-    foreach($search as $key => $param) {
-	    if($param == '[key]') {
-		    $form['search_input'] = array(
-	          '#type' => 'textfield',
-	          '#attributes' => array('placeholder' => variable_get('opac_search_placeholder', 'Find books & more...')),
-	          '#name' => $key,
-	          '#weight' => -999999,
-	      );
+	    foreach($search as $key => $param) {
+		    if($param == '[key]') {
+			    $form['search_input'] = array(
+		          '#type' => 'textfield',
+		          '#attributes' => array('placeholder' => variable_get('opac_search_placeholder', 'Find books & more...')),
+		          '#name' => $key,
+		          '#weight' => -999999,
+		      );
+			    
+		    } else {
+			    
+			    $form['hidden_' . $key] = array(
+			    	'#type' => 'hidden',
+			    	'#name' => $key,
+					'#value' => $param,
+			    );
+		    }
 		    
-	    } else {
-		    
-		    $form['hidden_' . $key] = array(
-		    	'#type' => 'hidden',
-		    	'#name' => $key,
-				'#value' => $param,
-		    );
 	    }
 	    
+	    return $form;
+    
+    } else {
+	    
+	    drupal_set_message('Either you haven\'t configured the search URL or the configuration is incorrect' ,'warning');
+	    
     }
-       
-    return $form;
     
 }
 
- 
+/**
+ * Implements hook_form_FORMID_alter().
+ */
 function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $form_id) {
   	$module = $form['module']['#value'];
 	if($form['module']['#value'] == 'opac_search') {
@@ -115,7 +137,7 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
 	        'search_url' => array(
 	        	'#type' => 'textfield', 
 	            '#title' => t('Search URL'), 
-	            '#default_value' => variable_get('opac_search_url', 'http://lakevilla.bibliocommons.com/search?t=smart&search_category=keyword&search_scope=LAKE_VILLA&q=[key]&commit=Search'), 
+	            '#default_value' => variable_get('opac_search_url'), 
 	            '#description' => 'Enter the URL for the search, using [key] to replace the search term.',
 	            '#size' => 120, 
 	            '#maxlength' => 500,
@@ -130,10 +152,11 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
 	
 }
 
+/**
+ * The submit function.
+ */
 function _opac_header_search_submit_block_form($form, &$form_state) {
     variable_set('opac_search_placeholder', $form_state['values']['placeholder_text']);  
     variable_set('opac_search_url', $form_state['values']['search_url']);  
     variable_set('opac_search_button', $form_state['values']['button_text']);        
-
-    
 }
