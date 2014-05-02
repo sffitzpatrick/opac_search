@@ -1,3 +1,7 @@
 <?php
+/**
+ * @file
+ * Sets message to user after installation.
+ */
 
 drupal_set_message('Be sure to configure the OPAC Search block.');
