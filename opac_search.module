@@ -105,7 +105,7 @@ function opac_search_catalog_form() {
  * Implements hook_form_FORMID_alter().
  */
 function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $form_id) {
-  	$module = $form['module']['#value'];
+	$module = $form['module']['#value'];
 	if($form['module']['#value'] == 'opac_search') {
 		$form['settings'] += array(
 			'placeholder_text' => array(
@@ -134,14 +134,14 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
 	            '#weight' => -18,
 	        ),  
 	     );
-	        $form['#submit'][] = '_opac_header_search_submit_block_form';
-     }
+	        $form['#submit'][] = 'opac_search_submit_block_form';
+	 }
 }
 
 /**
  * The submit function.
  */
-function _opac_header_search_submit_block_form($form, &$form_state) {
+function opac_search_submit_block_form($form, &$form_state) {
     variable_set('opac_search_placeholder', $form_state['values']['placeholder_text']);  
     variable_set('opac_search_url', $form_state['values']['search_url']);  
     variable_set('opac_search_button', $form_state['values']['button_text']);        
