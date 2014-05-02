@@ -8,10 +8,10 @@
  * Implements hook_block_info().
  */
 function opac_search_block_info() {
-    
+
   $blocks['opac_search'] = array(
-    'info' => t('opac search'), 
-  ); 
+    'info' => t('opac search'),
+  );
   return $blocks;
 }
 
@@ -39,22 +39,22 @@ function opac_search_block_view($delta = '') {
  */
 function opac_search_catalog_form() {
     $form = '';
-    
+
     $full_url = variable_get('opac_search_url', NULL);
-    
-    //first make sure there is a setting here. 
+
+    // first make sure there is a setting here.
     if(filter_var($full_url, FILTER_VALIDATE_URL)) {
 	    //split the string into URL and query params
 	    $url_parts = explode('?',$full_url);
 	    $search = $url_parts['1'];
 	    $action_url = $url_parts['0'];
-	    
-	    //now get the query params into an array
+
+	    // now get the query params into an array
 	    $search = explode('&', $search);
-	
+
 		// This should eventually allow us to manage the array better.   
 	    $search = drupal_get_query_parameters($search);
-	    
+
 	    foreach($search as $key => $term) {
 		    $newterm = explode('=', $term);
 		    $newkey = $newterm[0];
@@ -64,17 +64,17 @@ function opac_search_catalog_form() {
 	    }
 
 	    $form = array(
-	      '#method' => 'get',
+	      '#method' => 'GET',
 	      '#action' => url( $action_url, array('external' => true)),
-	      '#attributes' => array('target' => '_blank'),  
+	      '#attributes' => array('target' => '_blank'),
 	      'submit' => array(
 	        '#type' => 'submit',
 	        '#value' => variable_get('opac_search_button'),
 	        '#name' => 'SUBMIT',
 	        '#weight' => 4,
-	      ),  
+	      ),
 	    );
-    
+
 	    foreach($search as $key => $param) {
 		    if($param == '[key]') {
 			    $form['search_input'] = array(
@@ -84,7 +84,7 @@ function opac_search_catalog_form() {
 		          '#name' => $key,
 		          '#weight' => -999999,
 		      );
-		    } else {   
+		    } else {
 			    $form['hidden_' . $key] = array(
 			    	'#type' => 'hidden',
 			    	'#name' => $key,
@@ -92,7 +92,7 @@ function opac_search_catalog_form() {
 			    );
 		    }
 	    }
-	    
+
 	    return $form;
 
     } else {
@@ -108,30 +108,30 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
 	if($form['module']['#value'] == 'opac_search') {
 		$form['settings'] += array(
 			'placeholder_text' => array(
-	            '#type' => 'textfield', 
-	            '#title' => t('Placeholder text'), 
-	            '#default_value' => variable_get('opac_search_placeholder'), 
-	            '#size' => 60, 
+	            '#type' => 'textfield',
+	            '#title' => t('Placeholder text'),
+	            '#default_value' => variable_get('opac_search_placeholder'),
+	            '#size' => 60,
 	            '#maxlength' => 128,
 	            '#weight' => -18,
 	          ),
 	        'button_text' => array(
-	        	'#type' => 'textfield', 
-	            '#title' => t('Button text'), 
-	            '#default_value' => variable_get('opac_search_button', 'Search'), 
-	            '#size' => 60, 
+	        	'#type' => 'textfield',
+	            '#title' => t('Button text'),
+	            '#default_value' => variable_get('opac_search_button', 'Search'),
+	            '#size' => 60,
 	            '#maxlength' => 128,
 	            '#weight' => -17,
 	        ),
 	        'search_url' => array(
-	        	'#type' => 'textfield', 
-	            '#title' => t('Search URL'), 
-	            '#default_value' => variable_get('opac_search_url'), 
+	        	'#type' => 'textfield',
+	            '#title' => t('Search URL'),
+	            '#default_value' => variable_get('opac_search_url'),
 	            '#description' => t('Enter the URL for the search, using [key] to replace the search term.'),
-	            '#size' => 120, 
+	            '#size' => 120,
 	            '#maxlength' => 500,
 	            '#weight' => -18,
-	        ),  
+	        ),
 	     );
 	        $form['#submit'][] = 'opac_search_submit_block_form';
 	 }
@@ -141,7 +141,7 @@ function opac_search_form_block_admin_configure_alter(&$form, &$form_state, $for
  * The submit function.
  */
 function opac_search_submit_block_form($form, &$form_state) {
-    variable_set('opac_search_placeholder', $form_state['values']['placeholder_text']);  
-    variable_set('opac_search_url', $form_state['values']['search_url']);  
-    variable_set('opac_search_button', $form_state['values']['button_text']);        
+    variable_set('opac_search_placeholder', $form_state['values']['placeholder_text']); 
+    variable_set('opac_search_url', $form_state['values']['search_url']);
+    variable_set('opac_search_button', $form_state['values']['button_text']);
 }
